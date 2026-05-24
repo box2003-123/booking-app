@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园笔记本维护预约 - 主教806</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg: #f8fafc;
+    --card: #fff;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --success: #16a34a;
+    --warning: #ea580c;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    color: #fff;
+    text-align: center;
+    padding: 48px 20px 40px;
+  }
+  .header .icon { font-size: 48px; margin-bottom: 12px; }
+  .header h1 { font-size: 28px; margin-bottom: 8px; letter-spacing: 1px; }
+  .header .subtitle { font-size: 15px; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+
+  /* Container */
+  .container { max-width: 640px; margin: 0 auto; padding: 20px; }
+
+  /* Section */
+  .section { margin-bottom: 20px; }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .emoji { font-size: 22px; }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+  }
+
+  /* Pricing */
+  .pricing-group { margin-bottom: 16px; }
+  .pricing-group:last-child { margin-bottom: 0; }
+  .pricing-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .pricing-options { display: flex; flex-direction: column; gap: 8px; }
+
+  .pricing-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .pricing-option:hover { border-color: #93c5fd; background: #f0f7ff; }
+  .pricing-option.selected { border-color: var(--primary); background: #eff6ff; }
+
+  .pricing-option .left { display: flex; align-items: center; gap: 10px; }
+  .pricing-option .radio {
+    width: 20px; height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .pricing-option.selected .radio {
+    border-color: var(--primary);
+  }
+  .pricing-option.selected .radio::after {
+    content: '';
+    width: 10px; height: 10px;
+    background: var(--primary);
+    border-radius: 50%;
+  }
+  .pricing-option .name { font-size: 15px; font-weight: 500; }
+  .pricing-option .desc { font-size: 12px; color: var(--text-light); }
+  .pricing-option .price { font-size: 18px; font-weight: 700; color: var(--primary); white-space: nowrap; }
+
+  .addon-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .addon-row:hover { border-color: #93c5fd; }
+  .addon-row.checked { border-color: var(--primary); background: #eff6ff; }
+  .addon-row .checkbox {
+    width: 20px; height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .addon-row.checked .checkbox {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  .addon-row.checked .checkbox::after {
+    content: '✓';
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Total */
+  .total-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+    border-radius: 12px;
+    color: #fff;
+    margin-top: 14px;
+  }
+  .total-bar .total-label { font-size: 15px; opacity: 0.9; }
+  .total-bar .total-price { font-size: 32px; font-weight: 800; }
+  .total-bar .total-price .yen { font-size: 18px; }
+
+  /* Form */
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .form-group .hint { font-size: 12px; color: var(--text-light); margin-bottom: 6px; }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--primary); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: var(--primary-dark); }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-outline {
+    background: #fff;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    margin-top: 10px;
+  }
+  .btn-outline:hover { background: #eff6ff; }
+
+  /* Steps */
+  .steps { display: flex; gap: 12px; }
+  .step {
+    flex: 1;
+    text-align: center;
+    padding: 14px 8px;
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .step .step-num {
+    width: 28px; height: 28px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .step .step-text { font-size: 13px; font-weight: 500; }
+
+  /* Location */
+  .location-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    background: #fefce8;
+    border-radius: 10px;
+    border: 1px solid #fde68a;
+  }
+  .location-box .loc-icon { font-size: 28px; flex-shrink: 0; }
+  .location-box .loc-text { font-size: 14px; }
+  .location-box .loc-text strong { color: #a16207; }
+
+  /* Success Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px 24px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal .check-icon {
+    width: 60px; height: 60px;
+    background: #dcfce7;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin-bottom: 16px;
+  }
+  .modal h3 { font-size: 20px; margin-bottom: 8px; }
+  .modal .summary {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: left;
+    font-size: 14px;
+    margin: 16px 0;
+    line-height: 1.8;
+  }
+  .modal .summary span { color: var(--text-light); }
+  .modal .note {
+    font-size: 13px;
+    color: var(--warning);
+    margin-bottom: 16px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 13px;
+  }
+
+  @media (max-width: 400px) {
+    .header h1 { font-size: 24px; }
+    .pricing-option { padding: 10px 12px; }
+    .pricing-option .name { font-size: 14px; }
+    .pricing-option .price { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="icon">💻</div>
+  <h1>校园笔记本维护预约</h1>
+  <p class="subtitle">专业清灰 · 换硅脂 · 电脑问题处理</p>
+  <div class="badge">📍 主教806 &nbsp;|&nbsp; 💬 微信：Qh806-H</div>
+</div>
+
+<div class="container">
+
+  <!-- Steps -->
+  <div class="section">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">选择服务</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">填写信息</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">送来主教806</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Calculator -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">💰</span> 选择服务，自动计价</div>
+    <div class="card">
+      <div class="pricing-group">
+        <div class="pricing-label">📋 服务项目</div>
+        <div class="pricing-options" id="serviceType">
+          <div class="pricing-option selected" data-value="normal" onclick="selectService(this)">
+            <div class="left">
+              <div class="radio"></div>
+              <div>
+                <div class="name">清灰 + 换硅脂（普通机型）</div>
+                <div class="desc">标准拆机清灰，更换导热硅脂</div>
+              </div>
+            </div>
+            <div class="price">¥50</div>
+          </div>
+          <div class="pricing-option" data-value="dell-g" onclick="selectService(this)">
+            <div class="left">
+              <div class="radio"></div>
+              <div>
+                <div class="name">清灰 + 换硅脂（Dell G系列）</div>
+                <div class="desc">主板倒装结构，拆机更复杂</div>
+              </div>
+            </div>
+            <div class="price">¥80</div>
+          </div>
+          <div class="pricing-option" data-value="liquid" onclick="selectService(this)">
+            <div class="left">
+              <div class="radio"></div>
+              <div>
+                <div class="name">清灰 + 换硅脂（液金散热机型）</div>
+                <div class="desc">液金处理风险大，需额外小心</div>
+              </div>
+            </div>
+            <div class="price">¥70</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pricing-group">
+        <div class="pricing-label">🔧 附加选项（可多选）</div>
+        <div class="addon-row" data-value="7950" data-price="10" onclick="toggleAddon(this)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">使用 7950 相变片</div>
+              <div class="desc">替代普通硅脂，导热更稳定持久</div>
+            </div>
+          </div>
+          <div class="price">+¥10</div>
+        </div>
+        <div class="addon-row" data-value="extra-fan" data-price="0" onclick="toggleAddon(this)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">其他电脑问题 / 故障排查</div>
+              <div class="desc">蓝屏、卡顿、不开机等，价格面议</div>
+            </div>
+          </div>
+          <div class="price" style="color:#64748b;font-size:14px">面议</div>
+        </div>
+      </div>
+
+      <div class="total-bar">
+        <span class="total-label">预估费用</span>
+        <span class="total-price"><span class="yen">¥</span><span id="totalPrice">50</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Form -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📝</span> 填写预约信息</div>
+    <div class="card">
+      <form id="bookingForm" onsubmit="submitForm(event)">
+        <div class="form-group">
+          <label>姓名</label>
+          <input type="text" id="name" placeholder="你的名字" required>
+        </div>
+        <div class="form-group">
+          <label>微信号 / 手机号</label>
+          <div class="hint">用于联系确认预约时间</div>
+          <input type="text" id="contact" placeholder="微信号或手机号" required>
+        </div>
+        <div class="form-group">
+          <label>笔记本型号</label>
+          <div class="hint">例如：联想拯救者 Y9000P 2024</div>
+          <input type="text" id="laptopModel" placeholder="品牌 + 型号" required>
+        </div>
+        <div class="form-group">
+          <label>期望送达时间</label>
+          <select id="preferredTime" required>
+            <option value="">请选择</option>
+            <option value="workday-morning">工作日 上午</option>
+            <option value="workday-afternoon">工作日 下午</option>
+            <option value="weekend-morning">周末 上午</option>
+            <option value="weekend-afternoon">周末 下午</option>
+            <option value="any">都可以，微信沟通</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>备注（选填）</label>
+          <textarea id="notes" placeholder="电脑有什么特殊问题？或者有什么要提前说明的……"></textarea>
+        </div>
+        <button type="submit" class="btn">📩 提交预约</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Location -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📍</span> 服务地址 & 联系方式</div>
+    <div class="location-box">
+      <div class="loc-icon">🏫</div>
+      <div class="loc-text">
+        <strong>主教806</strong><br>
+        把笔记本送到这里即可<br>
+        <span style="font-size:12px;color:#64748b;">微信：<strong style="color:#2563eb;font-size:15px;">Qh806-H</strong>（提交预约后也请加微信确认）</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay hidden" id="successModal">
+  <div class="modal">
+    <div class="check-icon">✅</div>
+    <h3>预约已提交</h3>
+    <p style="color:#64748b;font-size:14px;">请截图保存以下信息</p>
+    <div class="summary" id="summaryContent"></div>
+    <p class="note">⚠ 请添加微信 <strong style="font-size:18px;color:#2563eb;">Qh806-H</strong> 确认预约，以微信确认为准</p>
+    <button class="btn" onclick="closeModal()">我知道了</button>
+  </div>
+</div>
+
+<div class="footer">
+  校园笔记本维护 · 主教806 · 用心服务每一位同学
+</div>
+
+<script>
+  let selectedService = 'normal';
+  let selectedAddons = new Set();
+
+  function selectService(el) {
+    document.querySelectorAll('#serviceType .pricing-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedService = el.dataset.value;
+    updatePrice();
+  }
+
+  function toggleAddon(el) {
+    const value = el.dataset.value;
+    if (selectedAddons.has(value)) {
+      selectedAddons.delete(value);
+      el.classList.remove('checked');
+    } else {
+      selectedAddons.add(value);
+      el.classList.add('checked');
+    }
+    updatePrice();
+    // 更新其他电脑问题的备注提示
+    updateNotesHint();
+  }
+
+  function updatePrice() {
+    const prices = { normal: 50, 'dell-g': 80, liquid: 70 };
+    let total = prices[selectedService] || 50;
+
+    selectedAddons.forEach(addon => {
+      const el = document.querySelector(`.addon-row[data-value="${addon}"]`);
+      if (el && el.dataset.price) {
+        total += parseInt(el.dataset.price);
+      }
+    });
+
+    document.getElementById('totalPrice').textContent = total;
+  }
+
+  function updateNotesHint() {
+    // 如果选了其他电脑问题，提醒在备注中描述
+    const notesField = document.getElementById('notes');
+    if (selectedAddons.has('extra-fan')) {
+      notesField.placeholder = '请描述电脑的具体问题：蓝屏？卡顿？不开机？……';
+    } else {
+      notesField.placeholder = '电脑有什么特殊问题？或者有什么要提前说明的……';
+    }
+  }
+
+  async function sendWechatNotify(name, contact, laptopModel, serviceName, addonText, total, timeText, notes) {
+    const title = `🔔 新预约：${name} - ${serviceName}`;
+    const desp = `
+## 新预约提醒
+
+| 项目 | 详情 |
+|------|------|
+| **姓名** | ${name} |
+| **联系** | ${contact} |
+| **机型** | ${laptopModel} |
+| **服务** | ${serviceName}${addonText.replace(/\n/g, '<br>')} |
+| **费用** | ¥${total} |
+| **时间** | ${timeText} |
+| **备注** | ${notes || '无'} |
+
+---
+> 来自校园笔记本维护预约系统
+    `.trim();
+
+    try {
+      await fetch('https://sctapi.ftqq.com/SCT353601T2DnDhMhue7UWiFfsOBnORwxM.send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ title, desp })
+      });
+    } catch (err) {
+      // 通知发送失败不影响用户使用
+      console.log('通知发送失败', err);
+    }
+  }
+
+  function submitForm(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value.trim();
+    const contact = document.getElementById('contact').value.trim();
+    const laptopModel = document.getElementById('laptopModel').value.trim();
+    const preferredTime = document.getElementById('preferredTime');
+    const timeText = preferredTime.options[preferredTime.selectedIndex].text;
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!name || !contact || !laptopModel || !preferredTime.value) return;
+
+    const serviceNames = {
+      normal: '清灰+换硅脂（普通机型）¥50',
+      'dell-g': '清灰+换硅脂（Dell G系列）¥80',
+      liquid: '清灰+换硅脂（液金散热机型）¥70'
+    };
+
+    let addonText = '';
+    selectedAddons.forEach(a => {
+      if (a === '7950') addonText += '\n  + 7950相变片 ¥10';
+      if (a === 'extra-fan') addonText += '\n  + 其他电脑问题（面议）';
+    });
+
+    const total = document.getElementById('totalPrice').textContent;
+
+    const summary = `
+      <p><span>服务：</span>${serviceNames[selectedService]}${addonText}</p>
+      <p><span>费用：</span><strong>¥${total}</strong></p>
+      <p><span>姓名：</span>${name}</p>
+      <p><span>联系：</span>${contact}</p>
+      <p><span>机型：</span>${laptopModel}</p>
+      <p><span>时间：</span>${timeText}</p>
+      ${notes ? `<p><span>备注：</span>${notes}</p>` : ''}
+    `;
+
+    document.getElementById('summaryContent').innerHTML = summary;
+    document.getElementById('successModal').classList.remove('hidden');
+
+    // 发送微信通知
+    sendWechatNotify(name, contact, laptopModel, serviceNames[selectedService], addonText, total, timeText, notes);
+
+    // 滚动到顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function closeModal() {
+    document.getElementById('successModal').classList.add('hidden');
+  }
+
+  // 点击遮罩关闭
+  document.getElementById('successModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // 初始化价格
+  updatePrice();
+</script>
+
+</body>
+</html>
