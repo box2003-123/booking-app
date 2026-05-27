@@ -5,260 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>校园笔记本维护预约 - 主教806</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --bg: #f8fafc;
-    --card: #fff;
-    --text: #1e293b;
-    --text-light: #64748b;
-    --border: #e2e8f0;
-    --success: #16a34a;
-    --warning: #ea580c;
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
-  }
-  .header {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-    color: #fff;
-    text-align: center;
-    padding: 48px 20px 40px;
-  }
-  .header .icon { font-size: 48px; margin-bottom: 12px; }
-  .header h1 { font-size: 28px; margin-bottom: 8px; letter-spacing: 1px; }
-  .header .subtitle { font-size: 15px; opacity: 0.85; }
-  .header .badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.2);
-    padding: 6px 16px;
-    border-radius: 20px;
-    margin-top: 14px;
-    font-size: 14px;
-  }
-  .container { max-width: 640px; margin: 0 auto; padding: 20px; }
-  .section { margin-bottom: 20px; }
-  .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title .emoji { font-size: 22px; }
-  .card {
-    background: var(--card);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    border: 1px solid var(--border);
-  }
-  .pricing-group { margin-bottom: 16px; }
-  .pricing-group:last-child { margin-bottom: 0; }
-  .pricing-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 8px;
-  }
-  .pricing-options { display: flex; flex-direction: column; gap: 8px; }
-  .pricing-option {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    user-select: none;
-  }
-  .pricing-option:hover { border-color: #93c5fd; background: #f0f7ff; }
-  .pricing-option.selected { border-color: var(--primary); background: #eff6ff; }
-  .pricing-option .left { display: flex; align-items: center; gap: 10px; }
-  .pricing-option .radio {
-    width: 20px; height: 20px;
-    border: 2px solid #cbd5e1;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: border-color 0.2s;
-  }
-  .pricing-option.selected .radio { border-color: var(--primary); }
-  .pricing-option.selected .radio::after {
-    content: '';
-    width: 10px; height: 10px;
-    background: var(--primary);
-    border-radius: 50%;
-  }
-  .pricing-option .name { font-size: 15px; font-weight: 500; }
-  .pricing-option .desc { font-size: 12px; color: var(--text-light); }
-  .pricing-option .price { font-size: 18px; font-weight: 700; color: var(--primary); white-space: nowrap; }
-  .addon-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    margin-top: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    user-select: none;
-  }
-  .addon-row:hover { border-color: #93c5fd; }
-  .addon-row.checked { border-color: var(--primary); background: #eff6ff; }
-  .addon-row .checkbox {
-    width: 20px; height: 20px;
-    border: 2px solid #cbd5e1;
-    border-radius: 5px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-  .addon-row.checked .checkbox {
-    background: var(--primary);
-    border-color: var(--primary);
-  }
-  .addon-row.checked .checkbox::after {
-    content: '✓';
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-  }
-  .total-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
-    border-radius: 12px;
-    color: #fff;
-    margin-top: 14px;
-  }
-  .total-bar .total-label { font-size: 15px; opacity: 0.9; }
-  .total-bar .total-price { font-size: 32px; font-weight: 800; }
-  .total-bar .total-price .yen { font-size: 18px; }
-  .form-group { margin-bottom: 14px; }
-  .form-group:last-child { margin-bottom: 0; }
-  .form-group label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--text);
-  }
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    width: 100%;
-    padding: 10px 14px;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    font-size: 15px;
-    font-family: inherit;
-    color: var(--text);
-    background: #fff;
-    transition: border-color 0.2s;
-    outline: none;
-  }
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus { border-color: var(--primary); }
-  .form-group textarea { resize: vertical; min-height: 80px; }
-  .form-group select { cursor: pointer; }
-  .form-group .hint { font-size: 12px; color: var(--text-light); margin-top: 2px; }
-  .btn {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #fff;
-    background: var(--primary);
-  }
-  .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
-  .steps {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-bottom: 24px;
-  }
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--text-light);
-  }
-  .step-num {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--border);
-    color: var(--text-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 13px;
-  }
-  .modal {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  .modal.hidden { display: none; }
-  .modal-content {
-    background: #fff;
-    border-radius: 16px;
-    padding: 32px 24px;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-  }
-  .modal-content .check { font-size: 56px; margin-bottom: 12px; }
-  .modal-content h2 { font-size: 22px; margin-bottom: 16px; }
-  .modal-content .summary {
-    text-align: left;
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    line-height: 2;
-  }
-  .modal-content .summary span { color: var(--text-light); margin-right: 8px; }
-  .modal-content .summary strong { color: var(--primary); }
-  .modal-content .btn { width: auto; padding: 10px 40px; }
-  .footer {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-light);
-    font-size: 13px;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#2563eb;--primary-dark:#1d4ed8;--bg:#f8fafc;--card:#fff;--text:#1e293b;--text-light:#64748b;--border:#e2e8f0;--success:#16a34a}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+.header{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);color:#fff;text-align:center;padding:48px 20px 40px}
+.header .icon{font-size:48px;margin-bottom:12px}
+.header h1{font-size:28px;margin-bottom:8px;letter-spacing:1px}
+.header .subtitle{font-size:15px;opacity:0.85}
+.header .badge{display:inline-block;background:rgba(255,255,255,0.2);padding:6px 16px;border-radius:20px;margin-top:14px;font-size:14px}
+.container{max-width:640px;margin:0 auto;padding:20px}
+.section{margin-bottom:20px}
+.section-title{font-size:18px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title .emoji{font-size:22px}
+.card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);border:1px solid var(--border)}
+.pricing-group{margin-bottom:16px}
+.pricing-group:last-child{margin-bottom:0}
+.pricing-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
+.addon-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:2px solid var(--border);border-radius:10px;margin-top:8px;cursor:pointer;transition:all 0.2s;user-select:none}
+.addon-row:hover{border-color:#93c5fd}
+.addon-row.checked{border-color:var(--primary);background:#eff6ff}
+.addon-row .left{display:flex;align-items:center;gap:10px}
+.addon-row .checkbox{width:20px;height:20px;border:2px solid #cbd5e1;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.addon-row.checked .checkbox{background:var(--primary);border-color:var(--primary)}
+.addon-row.checked .checkbox::after{content:'\2713';color:#fff;font-size:13px;font-weight:700}
+.addon-row .name{font-size:15px;font-weight:500}
+.addon-row .desc{font-size:12px;color:var(--text-light)}
+.addon-row .price{font-size:18px;font-weight:700;color:var(--primary);white-space:nowrap}
+.total-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,#1e3a5f 0%,#1e40af 100%);border-radius:12px;color:#fff;margin-top:14px}
+.total-bar .total-label{font-size:15px;opacity:0.9}
+.total-bar .total-price{font-size:32px;font-weight:800}
+.total-bar .total-price .yen{font-size:18px}
+.form-group{margin-bottom:14px}
+.form-group:last-child{margin-bottom:0}
+.form-group label{display:block;font-size:14px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;color:var(--text);background:#fff;transition:border-color 0.2s;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-group select{cursor:pointer}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;transition:all 0.2s;color:#fff;background:var(--primary)}
+.btn:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.steps{display:flex;justify-content:center;gap:24px;margin-bottom:24px}
+.step{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-light)}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--border);color:var(--text-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal.hidden{display:none}
+.modal-content{background:#fff;border-radius:16px;padding:32px 24px;max-width:400px;width:90%;text-align:center}
+.modal-content .check{font-size:56px;margin-bottom:12px}
+.modal-content h2{font-size:22px;margin-bottom:16px}
+.modal-content .summary{text-align:left;background:var(--bg);border-radius:10px;padding:14px;margin-bottom:20px;font-size:14px;line-height:2}
+.modal-content .summary span{color:var(--text-light);margin-right:8px}
+.modal-content .summary strong{color:var(--primary)}
+.modal-content .btn{width:auto;padding:10px 40px}
+.footer{text-align:center;padding:20px;color:var(--text-light);font-size:13px}
 </style>
 </head>
 <body>
 <div class="header">
-  <div class="icon">💻</div>
+  <div class="icon">&#x1F4BB;</div>
   <h1>校园笔记本维护预约</h1>
-  <p class="subtitle">专业清灰 · 换硅脂 · 电脑问题处理</p>
-  <div class="badge">📍 主教806 &nbsp;|&nbsp; 📱 微信：Dh806-H</div>
+  <p class="subtitle">专业清灰 &middot; 换硅脂 &middot; 电脑问题处理</p>
+  <div class="badge">&#x1F4CD; 主教806 &nbsp;|&nbsp; &#x1F4F1; 微信：Dh806-H</div>
 </div>
 <div class="container">
   <div class="steps">
@@ -267,56 +74,41 @@
     <div class="step"><span class="step-num">3</span><span class="step-text">送来主教806</span></div>
   </div>
   <div class="section" id="serviceType">
-    <div class="section-title"><span class="emoji">💵</span> 选择服务，自动计价</div>
+    <div class="section-title"><span class="emoji">&#x1F4B5;</span> 选择服务，自动计价</div>
     <div class="card">
       <div class="pricing-group">
-        <div class="pricing-label">📋 服务项目</div>
-        <div class="pricing-options">
-          <div class="pricing-option selected" data-value="normal" onclick="selectService(this)">
-            <div class="left">
-              <div class="radio"></div>
-              <div>
-                <div class="name">清灰 + 换硅脂（普通机型）</div>
-                <div class="desc">标准拆机清灰，更换导热硅脂</div>
-              </div>
-            </div>
-            <div class="price">¥50</div>
-          </div>
-          <div class="pricing-option" data-value="dell-g" onclick="selectService(this)">
-            <div class="left">
-              <div class="radio"></div>
-              <div>
-                <div class="name">清灰 + 换硅脂（Dell G系列）</div>
-                <div class="desc">主板倒装结构，拆机更复杂</div>
-              </div>
-            </div>
-            <div class="price">¥80</div>
-          </div>
-          <div class="pricing-option" data-value="other-fix" onclick="selectService(this)">
-            <div class="left">
-              <div class="radio"></div>
-              <div>
-                <div class="name">其他电脑问题（价格面议）</div>
-                <div class="desc">蓝屏、卡顿、不开机、加装固态/内存、清理C盘等</div>
-              </div>
-            </div>
-            <div class="price" style="color:#64748b;font-size:16px">面议</div>
-          </div>
-        </div>
-      </div>
-      <div class="pricing-group">
-        <div class="pricing-label">🔧 附加选项（可多选）</div>
-        <div class="addon-row" data-value="7950" data-price="10" onclick="toggleAddon(this)">
+        <div class="pricing-label">&#x1F4CB; 服务项目（可多选）</div>
+        <div class="addon-row" data-value="normal" data-price="50" onclick="toggleService(this)">
           <div class="left">
             <div class="checkbox"></div>
             <div>
-              <div class="name">使用 7950 相变片</div>
-              <div class="desc">替代普通硅脂，导热更稳定持久</div>
+              <div class="name">清灰 + 换硅脂（普通机型）</div>
+              <div class="desc">标准拆机清灰，更换导热硅脂</div>
             </div>
           </div>
-          <div class="price">+¥10</div>
+          <div class="price">&#xA5;50</div>
         </div>
-        <div class="addon-row" data-value="ssd" data-price="0" onclick="toggleAddon(this)">
+        <div class="addon-row" data-value="dell-g" data-price="80" onclick="toggleService(this)">
+          <div class="left">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">清灰 + 换硅脂（Dell G系列）</div>
+              <div class="desc">主板倒装结构，拆机更复杂</div>
+            </div>
+          </div>
+          <div class="price">&#xA5;80</div>
+        </div>
+        <div class="addon-row" data-value="other-fix" data-price="0" onclick="toggleService(this)">
+          <div class="left">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">其他电脑问题（价格面议）</div>
+              <div class="desc">蓝屏、卡顿、不开机等故障排查</div>
+            </div>
+          </div>
+          <div class="price" style="color:#64748b;font-size:16px">面议</div>
+        </div>
+        <div class="addon-row" data-value="ssd" data-price="0" onclick="toggleService(this)">
           <div class="left">
             <div class="checkbox"></div>
             <div>
@@ -326,7 +118,7 @@
           </div>
           <div class="price" style="color:#16a34a;font-size:14px">免费</div>
         </div>
-        <div class="addon-row" data-value="ram" data-price="0" onclick="toggleAddon(this)">
+        <div class="addon-row" data-value="ram" data-price="0" onclick="toggleService(this)">
           <div class="left">
             <div class="checkbox"></div>
             <div>
@@ -336,7 +128,7 @@
           </div>
           <div class="price" style="color:#16a34a;font-size:14px">免费</div>
         </div>
-        <div class="addon-row" data-value="clean-c" data-price="0" onclick="toggleAddon(this)">
+        <div class="addon-row" data-value="clean-c" data-price="0" onclick="toggleService(this)">
           <div class="left">
             <div class="checkbox"></div>
             <div>
@@ -347,14 +139,37 @@
           <div class="price" style="color:#16a34a;font-size:14px">免费</div>
         </div>
       </div>
+      <div class="pricing-group">
+        <div class="pricing-label">&#x1F527; 附加选项（可多选）</div>
+        <div class="addon-row" data-value="7950" data-price="10" onclick="toggleAddon(this)">
+          <div class="left">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">使用 7950 相变片</div>
+              <div class="desc">替代普通硅脂，导热更稳定持久</div>
+            </div>
+          </div>
+          <div class="price">+&#xA5;10</div>
+        </div>
+        <div class="addon-row" data-value="liquid-metal" data-price="20" onclick="toggleAddon(this)">
+          <div class="left">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">液金电脑手工费</div>
+              <div class="desc">液金散热机型额外手工费</div>
+            </div>
+          </div>
+          <div class="price">+&#xA5;20</div>
+        </div>
+      </div>
       <div class="total-bar">
         <span class="total-label">预估费用</span>
-        <span class="total-price"><span class="yen">¥</span><span id="totalPrice">50</span></span>
+        <span class="total-price"><span class="yen">&#xA5;</span><span id="totalPrice">0</span></span>
       </div>
     </div>
   </div>
   <div class="section">
-    <div class="section-title"><span class="emoji">📝</span> 填写预约信息</div>
+    <div class="section-title"><span class="emoji">&#x1F4DD;</span> 填写预约信息</div>
     <div class="card">
       <form id="bookingForm" onsubmit="return submitForm(event)">
         <div class="form-group">
@@ -389,116 +204,118 @@
       </form>
     </div>
   </div>
-  <div class="footer">
-    主教806 · 校园笔记本维护 · 用心对待每一台电脑
-  </div>
+  <div class="footer">主教806 &middot; 校园笔记本维护 &middot; 用心对待每一台电脑</div>
 </div>
 <div class="modal hidden" id="successModal">
   <div class="modal-content">
-    <div class="check">✅</div>
+    <div class="check">&#x2705;</div>
     <h2>预约提交成功</h2>
     <div class="summary" id="summaryContent"></div>
-    <p style="margin-bottom:16px;color:var(--text-light);font-size:14px;">
-      请把电脑拿到 <strong>主教806</strong>，我会尽快联系你
-    </p>
+    <p style="margin-bottom:16px;color:var(--text-light);font-size:14px;">请把电脑拿到 <strong>主教806</strong>，我会尽快联系你</p>
     <button class="btn" onclick="closeModal()">确认</button>
   </div>
 </div>
 <script>
-let selectedService = 'normal';
+let selectedServices = new Set();
 let selectedAddons = new Set();
-function selectService(el) {
-  document.querySelectorAll('#serviceType .pricing-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedService = el.dataset.value;
-  updatePrice();
-}
-function toggleAddon(el) {
-  const value = el.dataset.value;
-  if (selectedAddons.has(value)) {
-    selectedAddons.delete(value);
-    el.classList.remove('checked');
-  } else {
-    selectedAddons.add(value);
-    el.classList.add('checked');
-  }
+
+function toggleService(el) {
+  var v = el.dataset.value;
+  if (selectedServices.has(v)) { selectedServices.delete(v); el.classList.remove('checked'); }
+  else { selectedServices.add(v); el.classList.add('checked'); }
   updatePrice();
   updateNotesHint();
 }
+
+function toggleAddon(el) {
+  var v = el.dataset.value;
+  if (selectedAddons.has(v)) { selectedAddons.delete(v); el.classList.remove('checked'); }
+  else { selectedAddons.add(v); el.classList.add('checked'); }
+  updatePrice();
+}
+
 function updatePrice() {
-  const prices = { normal: 50, 'dell-g': 80, 'other-fix': 0 };
-  let total = prices[selectedService] || 50;
-  selectedAddons.forEach(addon => {
-    const el = document.querySelector('.addon-row[data-value="'+addon+'"]');
+  var total = 0;
+  selectedServices.forEach(function(s) {
+    var el = document.querySelector('.addon-row[data-value="' + s + '"]');
     if (el && el.dataset.price) total += parseInt(el.dataset.price);
   });
-    if (selectedService === 'other-fix') {
-    document.getElementById('totalPrice').parentElement.querySelector('.yen').textContent = '';
+  selectedAddons.forEach(function(a) {
+    var el = document.querySelector('.addon-row[data-value="' + a + '"]');
+    if (el && el.dataset.price) total += parseInt(el.dataset.price);
+  });
+  var yen = document.getElementById('totalPrice').parentElement.querySelector('.yen');
+  if (selectedServices.has('other-fix')) {
+    yen.textContent = '';
     document.getElementById('totalPrice').textContent = '面议';
   } else {
-    document.getElementById('totalPrice').parentElement.querySelector('.yen').textContent = '¥';
+    yen.textContent = '\xA5';
     document.getElementById('totalPrice').textContent = total;
   }
 }
+
 function updateNotesHint() {
-  const notesField = document.getElementById('notes');
-  notesField.placeholder = '电脑有什么特殊问题？或者有什么要提前说明的…';
+  var f = document.getElementById('notes');
+  f.placeholder = selectedServices.has('other-fix') ? '请详细描述电脑问题…' : '电脑有什么特殊问题？或者有什么要提前说明的…';
 }
-async function sendWechatNotify(name, contact, laptopModel, serviceName, addonText, total, timeText, notes) {
-  const title = '🔔 新预约：' + name + ' - ' + serviceName;
-  const desp = '## 新预约提醒\n| 项目 | 详情 |\n|------|------|\n| **姓名** | ' + name + ' |\n| **联系** | ' + contact + ' |\n| **机型** | ' + laptopModel + ' |\n| **服务** | ' + serviceName + addonText.replace(/\n/g, '<br>') + ' |\n| **费用** | ¥' + total + ' |\n| **时间** | ' + timeText + ' |\n| **备注** | ' + (notes || '无') + ' |\n\n---\n> 来自校园笔记本维护预约系统';
-  try {
-    await fetch('https://sctapi.ftqq.com/SCT355058TPfpcnlRubJsB22sr7k7szXYt.send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ title, desp })
-    });
-  } catch (err) {
-    console.log('通知发送失败', err);
-  }
+
+function sendWechatNotify(name, contact, laptopModel, serviceText, total, timeText, notes) {
+  var title = '\uD83D\uDD14 新预约：' + name;
+  var desp = '## 新预约提醒\n| 项目 | 详情 |\n|------|------|\n| **姓名** | ' + name + ' |\n| **联系** | ' + contact + ' |\n| **机型** | ' + laptopModel + ' |\n| **服务** | ' + serviceText.replace(/\n/g, '<br>') + ' |\n| **费用** | ' + total + ' |\n| **时间** | ' + timeText + ' |\n| **备注** | ' + (notes || '无') + ' |\n\n---\n> 来自校园笔记本维护预约系统';
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://sctapi.ftqq.com/SCT355058TPfpcnlRubJsB22sr7k7szXYt.send', true);
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.send('title=' + encodeURIComponent(title) + '&desp=' + encodeURIComponent(desp));
 }
+
 function submitForm(e) {
   e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const contact = document.getElementById('contact').value.trim();
-  const laptopModel = document.getElementById('laptopModel').value.trim();
-  const preferredTime = document.getElementById('preferredTime');
-  const timeText = preferredTime.options[preferredTime.selectedIndex].text;
-  const notes = document.getElementById('notes').value.trim();
+  var name = document.getElementById('name').value.trim();
+  var contact = document.getElementById('contact').value.trim();
+  var laptopModel = document.getElementById('laptopModel').value.trim();
+  var preferredTime = document.getElementById('preferredTime');
+  var timeText = preferredTime.options[preferredTime.selectedIndex].text;
+  var notes = document.getElementById('notes').value.trim();
   if (!name || !contact || !laptopModel || !preferredTime.value) return;
-  const serviceNames = {
-    normal: '清灰+换硅脂（普通机型）¥50',
-    'dell-g': '清灰+换硅脂（Dell G系列）¥80',
-    'other-fix': '其他电脑问题（价格面议）'
+  if (selectedServices.size === 0) { alert('请至少选择一项服务'); return; }
+
+  var names = {
+    'normal': '清灰+换硅脂（普通机型）\xA550',
+    'dell-g': '清灰+换硅脂（Dell G系列）\xA580',
+    'other-fix': '其他电脑问题（价格面议）',
+    'ssd': '加装固态硬盘（免费）',
+    'ram': '加装内存条（免费）',
+    'clean-c': '清理C盘（免费）'
   };
-  let addonText = '';
-  selectedAddons.forEach(a => {
-    if (a === '7950') addonText += '\n  + 7950相变片 ¥10';
-    if (a === 'ssd') addonText += '\n  + 加装固态（免费）';
-    if (a === 'ram') addonText += '\n  + 加装内存条（免费）';
-    if (a === 'clean-c') addonText += '\n  + 清理C盘（免费）';
-  });
-  const total = document.getElementById('totalPrice').textContent;
-  const displayTotal = total === '面议' ? '面议' : '¥' + total;
-  const summary =
-    '<p><span>服务：</span>' + serviceNames[selectedService] + addonText + '</p>' +
-    '<p><span>费用：</span><strong>' + displayTotal + '</strong></p>' +
-    '<p><span>姓名：</span>' + name + '</p>' +
-    '<p><span>联系：</span>' + contact + '</p>' +
-    '<p><span>机型：</span>' + laptopModel + '</p>' +
-    '<p><span>时间：</span>' + timeText + '</p>' +
-    (notes ? '<p><span>备注：</span>' + notes + '</p>' : '');
-  document.getElementById('summaryContent').innerHTML = summary;
+  var anames = {
+    '7950': '7950相变片 \xA510',
+    'liquid-metal': '液金电脑手工费 \xA520'
+  };
+
+  var svcText = '';
+  selectedServices.forEach(function(s) { svcText += '\n  \u2022 ' + (names[s] || s); });
+  var adText = '';
+  selectedAddons.forEach(function(a) { adText += '\n  + ' + (anames[a] || a); });
+
+  var total = document.getElementById('totalPrice').textContent;
+  var dispTotal = total === '\u9762\u8BAE' ? '\u9762\u8BAE' : '\xA5' + total;
+
+  document.getElementById('summaryContent').innerHTML =
+    '<p><span>\u670D\u52A1\uFF1A</span>' + svcText + adText + '</p>' +
+    '<p><span>\u8D39\u7528\uFF1A</span><strong>' + dispTotal + '</strong></p>' +
+    '<p><span>\u59D3\u540D\uFF1A</span>' + name + '</p>' +
+    '<p><span>\u8054\u7CFB\uFF1A</span>' + contact + '</p>' +
+    '<p><span>\u673A\u578B\uFF1A</span>' + laptopModel + '</p>' +
+    '<p><span>\u65F6\u95F4\uFF1A</span>' + timeText + '</p>' +
+    (notes ? '<p><span>\u5907\u6CE8\uFF1A</span>' + notes + '</p>' : '');
+
   document.getElementById('successModal').classList.remove('hidden');
-  sendWechatNotify(name, contact, laptopModel, serviceNames[selectedService], addonText, total, timeText, notes);
+  sendWechatNotify(name, contact, laptopModel, svcText + adText, '\xA5' + total, timeText, notes);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-function closeModal() {
-  document.getElementById('successModal').classList.add('hidden');
-}
-document.getElementById('successModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+
+function closeModal() { document.getElementById('successModal').classList.add('hidden'); }
+document.getElementById('successModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 updatePrice();
 </script>
 </body>
