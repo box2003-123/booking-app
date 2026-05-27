@@ -164,7 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
       </div>
       <div class="total-bar">
         <span class="total-label">预估费用</span>
-        <span class="total-price"><span class="yen">&#xA5;</span><span id="totalPrice">0</span></span>
+        <span class="total-price"><span class="yen">&#xA5;</span><span id="totalPrice" style="font-size:20px;opacity:0.6">请选择服务</span></span>
       </div>
     </div>
   </div>
@@ -237,12 +237,18 @@ function updatePrice() {
     if (el && el.dataset.price) total += parseInt(el.dataset.price);
   });
   var yen = document.getElementById('totalPrice').parentElement.querySelector('.yen');
-  if (selectedServices.has('other-fix')) {
+  var tp = document.getElementById('totalPrice');
+  tp.style.fontSize = ''; tp.style.opacity = '';
+  if (selectedServices.size === 0 && selectedAddons.size === 0) {
     yen.textContent = '';
-    document.getElementById('totalPrice').textContent = '面议';
+    tp.style.fontSize = '20px'; tp.style.opacity = '0.6';
+    tp.textContent = '请选择服务';
+  } else if (selectedServices.has('other-fix')) {
+    yen.textContent = '';
+    tp.textContent = '面议';
   } else {
     yen.textContent = '\xA5';
-    document.getElementById('totalPrice').textContent = total;
+    tp.textContent = total;
   }
 }
 
@@ -269,7 +275,11 @@ function submitForm(e) {
   var timeText = preferredTime.value.trim();
   var notes = document.getElementById('notes').value.trim();
   if (!name || !contact || !laptopModel || !preferredTime.value) return;
-  if (selectedServices.size === 0) { alert('请至少选择一项服务'); return; }
+  if (selectedServices.size === 0) { 
+    var btn = document.querySelector('#bookingForm .btn');
+    btn.textContent = '请先选择服务'; btn.style.background = '#ea580c';
+    setTimeout(function(){ btn.textContent = '提交预约'; btn.style.background = ''; }, 2000);
+    return; }
 
   var names = {
     'normal': '清灰+换硅脂（普通机型）\xA550',
@@ -289,6 +299,8 @@ function submitForm(e) {
   var adText = '';
   selectedAddons.forEach(function(a) { adText += '\n  + ' + (anames[a] || a); });
 
+  var btn = document.querySelector('#bookingForm .btn');
+  btn.textContent = '提交中…'; btn.disabled = true;
   var total = document.getElementById('totalPrice').textContent;
   var dispTotal = total === '\u9762\u8BAE' ? '\u9762\u8BAE' : '\xA5' + total;
 
@@ -301,8 +313,10 @@ function submitForm(e) {
     '<p><span>\u65F6\u95F4\uFF1A</span>' + timeText + '</p>' +
     (notes ? '<p><span>\u5907\u6CE8\uFF1A</span>' + notes + '</p>' : '');
 
+  btn.textContent = '提交预约'; btn.disabled = false;
   document.getElementById('successModal').classList.remove('hidden');
   sendWechatNotify(name, contact, laptopModel, svcText + adText, '\xA5' + total, timeText, notes);
+  document.getElementById('bookingForm').reset();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
