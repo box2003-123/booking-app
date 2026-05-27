@@ -186,15 +186,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
         </div>
         <div class="form-group">
           <label for="preferredTime">预约时间</label>
-          <select id="preferredTime" required>
-            <option value="">选择时间</option>
-            <option value="mon">周一 下午 2:00 - 4:00</option>
-            <option value="tue">周二 下午 2:00 - 4:00</option>
-            <option value="wed">周三 下午 2:00 - 4:00</option>
-            <option value="thu">周四 下午 2:00 - 4:00</option>
-            <option value="fri">周五 下午 2:00 - 4:00</option>
-            <option value="weekend">周末 需预约</option>
-          </select>
+          <input type="text" id="preferredTime" required placeholder="例如：周三下午、周末都可以…">
         </div>
         <div class="form-group">
           <label for="notes">备注</label>
@@ -274,7 +266,7 @@ function submitForm(e) {
   var contact = document.getElementById('contact').value.trim();
   var laptopModel = document.getElementById('laptopModel').value.trim();
   var preferredTime = document.getElementById('preferredTime');
-  var timeText = preferredTime.options[preferredTime.selectedIndex].text;
+  var timeText = preferredTime.value.trim();
   var notes = document.getElementById('notes').value.trim();
   if (!name || !contact || !laptopModel || !preferredTime.value) return;
   if (selectedServices.size === 0) { alert('请至少选择一项服务'); return; }
