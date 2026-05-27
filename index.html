@@ -172,10 +172,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
     <div class="section-title"><span class="emoji">&#x1F4DD;</span> 填写预约信息</div>
     <div class="card">
       <form id="bookingForm" onsubmit="return submitForm(event)">
-        <div class="form-group">
-          <label for="name">姓名</label>
-          <input type="text" id="name" required placeholder="你的名字">
-        </div>
+        
         <div class="form-group">
           <label for="contact">联系方式</label>
           <input type="text" id="contact" required placeholder="微信/手机号码">
@@ -257,9 +254,9 @@ function updateNotesHint() {
   f.placeholder = selectedServices.has('other-fix') ? '请详细描述电脑问题…' : '电脑有什么特殊问题？或者有什么要提前说明的…';
 }
 
-function sendWechatNotify(name, contact, laptopModel, serviceText, total, timeText, notes) {
-  var title = '\uD83D\uDD14 新预约：' + name;
-  var desp = '## 新预约提醒\n| 项目 | 详情 |\n|------|------|\n| **姓名** | ' + name + ' |\n| **联系** | ' + contact + ' |\n| **机型** | ' + laptopModel + ' |\n| **服务** | ' + serviceText.replace(/\n/g, '<br>') + ' |\n| **费用** | ' + total + ' |\n| **时间** | ' + timeText + ' |\n| **备注** | ' + (notes || '无') + ' |\n\n---\n> 来自校园笔记本维护预约系统';
+function sendWechatNotify(contact, laptopModel, serviceText, total, timeText, notes) {
+  var title = '\uD83D\uDD14 新预约：' + laptopModel;
+  var desp = '## 新预约提醒\n| 项目 | 详情 |\n|------|------|\n| **联系** | ' + contact + ' |\n| **机型** | ' + laptopModel + ' |\n| **服务** | ' + serviceText.replace(/\n/g, '<br>') + ' |\n| **费用** | ' + total + ' |\n| **时间** | ' + timeText + ' |\n| **备注** | ' + (notes || '无') + ' |\n\n---\n> 来自校园笔记本维护预约系统';
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'https://sctapi.ftqq.com/SCT355058TPfpcnlRubJsB22sr7k7szXYt.send', true);
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -268,13 +265,13 @@ function sendWechatNotify(name, contact, laptopModel, serviceText, total, timeTe
 
 function submitForm(e) {
   e.preventDefault();
-  var name = document.getElementById('name').value.trim();
+  
   var contact = document.getElementById('contact').value.trim();
   var laptopModel = document.getElementById('laptopModel').value.trim();
   var preferredTime = document.getElementById('preferredTime');
   var timeText = preferredTime.value.trim();
   var notes = document.getElementById('notes').value.trim();
-  if (!name || !contact || !laptopModel || !preferredTime.value) return;
+  if (!contact || !laptopModel || !preferredTime.value) return;
   if (selectedServices.size === 0) { 
     var btn = document.querySelector('#bookingForm .btn');
     btn.textContent = '请先选择服务'; btn.style.background = '#ea580c';
@@ -307,7 +304,7 @@ function submitForm(e) {
   document.getElementById('summaryContent').innerHTML =
     '<p><span>\u670D\u52A1\uFF1A</span>' + svcText + adText + '</p>' +
     '<p><span>\u8D39\u7528\uFF1A</span><strong>' + dispTotal + '</strong></p>' +
-    '<p><span>\u59D3\u540D\uFF1A</span>' + name + '</p>' +
+    
     '<p><span>\u8054\u7CFB\uFF1A</span>' + contact + '</p>' +
     '<p><span>\u673A\u578B\uFF1A</span>' + laptopModel + '</p>' +
     '<p><span>\u65F6\u95F4\uFF1A</span>' + timeText + '</p>' +
@@ -315,7 +312,7 @@ function submitForm(e) {
 
   btn.textContent = '提交预约'; btn.disabled = false;
   document.getElementById('successModal').classList.remove('hidden');
-  sendWechatNotify(name, contact, laptopModel, svcText + adText, '\xA5' + total, timeText, notes);
+  sendWechatNotify(contact, laptopModel, svcText + adText, '\xA5' + total, timeText, notes);
   document.getElementById('bookingForm').reset();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
