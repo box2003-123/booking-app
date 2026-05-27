@@ -292,15 +292,15 @@
             </div>
             <div class="price">¥80</div>
           </div>
-          <div class="pricing-option" data-value="liquid" onclick="selectService(this)">
+          <div class="pricing-option" data-value="other-fix" onclick="selectService(this)">
             <div class="left">
               <div class="radio"></div>
               <div>
-                <div class="name">清灰 + 换硅脂（液金散热机型）</div>
-                <div class="desc">液金处理风险大，需额外小心</div>
+                <div class="name">其他电脑问题（价格面议）</div>
+                <div class="desc">蓝屏、卡顿、不开机、加装固态/内存、清理C盘等</div>
               </div>
             </div>
-            <div class="price">¥70</div>
+            <div class="price" style="color:#64748b;font-size:16px">面议</div>
           </div>
         </div>
       </div>
@@ -316,15 +316,35 @@
           </div>
           <div class="price">+¥10</div>
         </div>
-        <div class="addon-row" data-value="extra-fan" data-price="0" onclick="toggleAddon(this)">
+        <div class="addon-row" data-value="ssd" data-price="0" onclick="toggleAddon(this)">
           <div class="left">
             <div class="checkbox"></div>
             <div>
-              <div class="name">其他电脑问题 / 故障排查</div>
-              <div class="desc">蓝屏、卡顿、不开机等，价格面议</div>
+              <div class="name">加装固态硬盘</div>
+              <div class="desc">自带硬盘，免费帮你装</div>
             </div>
           </div>
-          <div class="price" style="color:#64748b;font-size:14px">面议</div>
+          <div class="price" style="color:#16a34a;font-size:14px">免费</div>
+        </div>
+        <div class="addon-row" data-value="ram" data-price="0" onclick="toggleAddon(this)">
+          <div class="left">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">加装内存条</div>
+              <div class="desc">自带内存条，免费帮你装</div>
+            </div>
+          </div>
+          <div class="price" style="color:#16a34a;font-size:14px">免费</div>
+        </div>
+        <div class="addon-row" data-value="clean-c" data-price="0" onclick="toggleAddon(this)">
+          <div class="left">
+            <div class="checkbox"></div>
+            <div>
+              <div class="name">清理C盘</div>
+              <div class="desc">清理系统垃圾、缓存文件</div>
+            </div>
+          </div>
+          <div class="price" style="color:#16a34a;font-size:14px">免费</div>
         </div>
       </div>
       <div class="total-bar">
@@ -406,21 +426,23 @@ function toggleAddon(el) {
   updateNotesHint();
 }
 function updatePrice() {
-  const prices = { normal: 50, 'dell-g': 80, liquid: 70 };
+  const prices = { normal: 50, 'dell-g': 80, 'other-fix': 0 };
   let total = prices[selectedService] || 50;
   selectedAddons.forEach(addon => {
     const el = document.querySelector('.addon-row[data-value="'+addon+'"]');
     if (el && el.dataset.price) total += parseInt(el.dataset.price);
   });
-  document.getElementById('totalPrice').textContent = total;
+    if (selectedService === 'other-fix') {
+    document.getElementById('totalPrice').parentElement.querySelector('.yen').textContent = '';
+    document.getElementById('totalPrice').textContent = '面议';
+  } else {
+    document.getElementById('totalPrice').parentElement.querySelector('.yen').textContent = '¥';
+    document.getElementById('totalPrice').textContent = total;
+  }
 }
 function updateNotesHint() {
   const notesField = document.getElementById('notes');
-  if (selectedAddons.has('extra-fan')) {
-    notesField.placeholder = '请描述电脑的具体问题：蓝屏？卡顿？不开机？…';
-  } else {
-    notesField.placeholder = '电脑有什么特殊问题？或者有什么要提前说明的…';
-  }
+  notesField.placeholder = '电脑有什么特殊问题？或者有什么要提前说明的…';
 }
 async function sendWechatNotify(name, contact, laptopModel, serviceName, addonText, total, timeText, notes) {
   const title = '🔔 新预约：' + name + ' - ' + serviceName;
@@ -447,17 +469,20 @@ function submitForm(e) {
   const serviceNames = {
     normal: '清灰+换硅脂（普通机型）¥50',
     'dell-g': '清灰+换硅脂（Dell G系列）¥80',
-    liquid: '清灰+换硅脂（液金散热机型）¥70'
+    'other-fix': '其他电脑问题（价格面议）'
   };
   let addonText = '';
   selectedAddons.forEach(a => {
     if (a === '7950') addonText += '\n  + 7950相变片 ¥10';
-    if (a === 'extra-fan') addonText += '\n  + 其他电脑问题（面议）';
+    if (a === 'ssd') addonText += '\n  + 加装固态（免费）';
+    if (a === 'ram') addonText += '\n  + 加装内存条（免费）';
+    if (a === 'clean-c') addonText += '\n  + 清理C盘（免费）';
   });
   const total = document.getElementById('totalPrice').textContent;
+  const displayTotal = total === '面议' ? '面议' : '¥' + total;
   const summary =
     '<p><span>服务：</span>' + serviceNames[selectedService] + addonText + '</p>' +
-    '<p><span>费用：</span><strong>¥' + total + '</strong></p>' +
+    '<p><span>费用：</span><strong>' + displayTotal + '</strong></p>' +
     '<p><span>姓名：</span>' + name + '</p>' +
     '<p><span>联系：</span>' + contact + '</p>' +
     '<p><span>机型：</span>' + laptopModel + '</p>' +
